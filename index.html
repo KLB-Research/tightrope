@@ -651,6 +651,54 @@
     margin: 1.5rem auto;
   }
 
+  .footer-citation {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 1.2rem 1.5rem;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px;
+  }
+
+  .footer-citation-label {
+    font-size: 0.55rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.35);
+    margin-bottom: 0.6rem;
+    font-weight: 500;
+  }
+
+  .footer-citation-text {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.6;
+    margin-bottom: 0.8rem;
+  }
+
+  .footer-citation-text em {
+    font-style: italic;
+  }
+
+  .footer-citation-copy {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 5px;
+    color: rgba(255,255,255,0.5);
+    font-size: 0.65rem;
+    letter-spacing: 0.05em;
+    padding: 0.35rem 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+
+  .footer-citation-copy:hover {
+    background: rgba(196,85,110,0.2);
+    border-color: rgba(196,85,110,0.3);
+    color: rgba(255,255,255,0.8);
+  }
+
   .footer-copy {
     font-size: 0.6rem;
     color: rgba(255,255,255,0.25);
@@ -745,6 +793,12 @@
     </a>
   </div>
   <div class="footer-divider"></div>
+  <div class="footer-citation">
+    <div class="footer-citation-label">Suggested Citation</div>
+    <div class="footer-citation-text" id="citationText">Hoskin, R. A. (2026). <em>The Impossible Balance: Double Binds of Femininity</em>. Interactive research visualization. https://klb-research.github.io/tightrope/</div>
+    <button class="footer-citation-copy" id="citationCopy">Copy citation</button>
+  </div>
+  <div class="footer-divider"></div>
   <div class="footer-copy">&copy; 2026 Dr. Rhea Ashley Hoskin. Research visualization.</div>
 </footer>
 
@@ -795,70 +849,73 @@
 const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vROB2X231xL42UWc30V4qI5-xs3sVPWBVIHVou__ctXWchAcyKMUoKU7p0g8U1HR4zzjuBlZ1thdFOT/pub?gid=0&single=true&output=csv';
 
 // ═══════════════════════════════════
-// CSV PARSER (handles quoted fields with commas)
+// CSV PARSER — single-pass, handles quotes, commas, newlines
 // ═══════════════════════════════════
-function parseCSV(text) {
+function csvToObjects(text) {
+  // Normalize line endings
+  text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+
   const rows = [];
-  let current = '';
+  let row = [];
+  let field = '';
   let inQuotes = false;
-  const lines = [];
+  let i = 0;
 
-  // Split into lines respecting quoted newlines
-  for (let i = 0; i < text.length; i++) {
+  while (i < text.length) {
     const ch = text[i];
-    if (ch === '"') {
-      if (inQuotes && text[i + 1] === '"') {
-        current += '"';
-        i++;
-      } else {
-        inQuotes = !inQuotes;
-      }
-    } else if (ch === '\n' && !inQuotes) {
-      lines.push(current.replace(/\r$/, ''));
-      current = '';
-    } else {
-      current += ch;
-    }
-  }
-  if (current.trim()) lines.push(current.replace(/\r$/, ''));
 
-  // Parse each line into fields
-  for (const line of lines) {
-    const fields = [];
-    let field = '';
-    let q = false;
-    for (let i = 0; i < line.length; i++) {
-      const ch = line[i];
+    if (inQuotes) {
       if (ch === '"') {
-        if (q && line[i + 1] === '"') {
+        if (text[i + 1] === '"') {
+          // Escaped quote
           field += '"';
-          i++;
+          i += 2;
         } else {
-          q = !q;
+          // End of quoted field
+          inQuotes = false;
+          i++;
         }
-      } else if (ch === ',' && !q) {
-        fields.push(field);
-        field = '';
       } else {
         field += ch;
+        i++;
+      }
+    } else {
+      if (ch === '"') {
+        // Start of quoted field (only valid at field start or after comma)
+        inQuotes = true;
+        i++;
+      } else if (ch === ',') {
+        row.push(field);
+        field = '';
+        i++;
+      } else if (ch === '\n') {
+        row.push(field);
+        field = '';
+        rows.push(row);
+        row = [];
+        i++;
+      } else {
+        field += ch;
+        i++;
       }
     }
-    fields.push(field);
-    rows.push(fields);
   }
 
-  return rows;
-}
+  // Last field/row
+  if (field || row.length > 0) {
+    row.push(field);
+    rows.push(row);
+  }
 
-function csvToObjects(text) {
-  const rows = parseCSV(text);
+  // Convert to objects
   if (rows.length < 2) return [];
   const headers = rows[0].map(h => h.trim().toLowerCase());
+
   return rows.slice(1)
-    .filter(row => row.length >= headers.length && row[0].trim() !== '')
-    .map(row => {
+    .filter(r => r.length >= headers.length && r[0].trim() !== '')
+    .map(r => {
       const obj = {};
-      headers.forEach((h, i) => { obj[h] = (row[i] || '').trim(); });
+      headers.forEach((h, idx) => { obj[h] = (r[idx] || '').trim(); });
       return obj;
     });
 }
@@ -1043,11 +1100,11 @@ function openModal(i) {
   document.getElementById('shareFb').href = `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`;
   document.getElementById('shareLi').href = `https://www.linkedin.com/sharing/share-offsite/?url=${url}`;
 
-  // Show native share button on mobile if supported, hide desktop buttons
-  const hasNativeShare = navigator.share && navigator.canShare;
+  // Show native share button if supported, but ALWAYS show desktop buttons too
+  const hasNativeShare = navigator.share;
   document.getElementById('shareNative').style.display = hasNativeShare ? 'flex' : 'none';
   document.querySelectorAll('.desktop-share').forEach(el => {
-    el.style.display = hasNativeShare ? 'none' : 'flex';
+    el.style.display = 'flex';
   });
 
   history.replaceState(null, '', '#' + d.id);
@@ -1290,6 +1347,18 @@ function downloadShareImage(index) {
 document.getElementById('shareImgBtn').addEventListener('click', e => {
   e.stopPropagation();
   if (currentIdx >= 0) downloadShareImage(currentIdx);
+});
+
+// ═══════════════════════════════════
+// CITATION COPY
+// ═══════════════════════════════════
+document.getElementById('citationCopy').addEventListener('click', () => {
+  const text = 'Hoskin, R. A. (2026). The Impossible Balance: Double Binds of Femininity. Interactive research visualization. https://klb-research.github.io/tightrope/';
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('citationCopy');
+    btn.textContent = 'Copied!';
+    setTimeout(() => { btn.textContent = 'Copy citation'; }, 2000);
+  });
 });
 
 // ═══════════════════════════════════
