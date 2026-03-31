@@ -1845,27 +1845,13 @@ document.getElementById('submitForm').addEventListener('submit', async function(
   };
 
   try {
-    // Google Apps Script redirects (302) after POST, so we must follow redirects.
-    // We send as form data to avoid CORS preflight issues.
-    const formData = new FormData();
-    formData.append('payload', JSON.stringify(payload));
+    // Send as GET with JSON in a data parameter — avoids POST/CORS/redirect issues with Apps Script
+    const url = APPS_SCRIPT_URL + '?data=' + encodeURIComponent(JSON.stringify(payload));
 
-    const resp = await fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      body: formData
-    });
+    const resp = await fetch(url);
+    const result = await resp.json();
 
-    // If we get a response (even after redirect), check it
-    let success = false;
-    try {
-      const result = await resp.json();
-      success = result.status === 'success';
-    } catch {
-      // If we can't parse JSON (CORS redirect), assume success if no error thrown
-      success = true;
-    }
-
-    if (success) {
+    if (result.status === 'success') {
       status.textContent = 'Thank you! Your submission has been received and will be reviewed by our research team.';
       status.className = 'form-status show success';
       this.reset();
@@ -1876,7 +1862,7 @@ document.getElementById('submitForm').addEventListener('submit', async function(
         document.getElementById('submitToggle').classList.remove('open');
       }, 3000);
     } else {
-      throw new Error('Submission failed');
+      throw new Error(result.message || 'Submission failed');
     }
   } catch (err) {
     console.error('Submit error:', err);
