@@ -429,6 +429,332 @@
   }
 
   /* ═══════════════════════════════════
+     SUBMIT FORM
+     ═══════════════════════════════════ */
+  .submit-section {
+    text-align: center;
+    padding: 4rem 2rem 5rem;
+    background: var(--bg);
+    position: relative;
+  }
+
+  .submit-thread {
+    width: 100%; max-width: 600px;
+    height: 1px;
+    margin: 0 auto 3rem;
+    background: linear-gradient(90deg, transparent, var(--rose), transparent);
+    opacity: 0.3;
+  }
+
+  .submit-section h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(1.5rem, 3.5vw, 2.2rem);
+    color: var(--ink);
+    margin-bottom: 0.8rem;
+    line-height: 1.2;
+  }
+
+  .submit-section > p {
+    font-size: 0.95rem;
+    color: var(--ink-light);
+    max-width: 520px;
+    margin: 0 auto 2.5rem;
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  .submit-form {
+    max-width: 540px;
+    margin: 0 auto;
+    text-align: left;
+  }
+
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .form-group label {
+    display: block;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--rose);
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+  }
+
+  .form-group .form-hint {
+    font-size: 0.8rem;
+    color: var(--ink-faint);
+    font-weight: 300;
+    margin-bottom: 0.5rem;
+    letter-spacing: normal;
+    text-transform: none;
+  }
+
+  .form-group input,
+  .form-group textarea {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    color: var(--ink);
+    background: white;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    -webkit-appearance: none;
+  }
+
+  .form-group input:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: var(--rose);
+    box-shadow: 0 0 0 3px var(--rose-pale);
+  }
+
+  .form-group input::placeholder,
+  .form-group textarea::placeholder {
+    color: #bbb;
+    font-weight: 300;
+  }
+
+  .form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+
+  .form-row {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .form-row .form-group {
+    flex: 1;
+  }
+
+  .submit-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.9rem 2.2rem;
+    background: var(--rose);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 0.5rem;
+  }
+
+  .submit-btn:hover {
+    background: var(--rose-deep);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(196,85,110,0.3);
+  }
+
+  .submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .submit-btn svg {
+    width: 18px; height: 18px;
+    fill: currentColor;
+  }
+
+  .form-status {
+    margin-top: 1.2rem;
+    font-size: 0.9rem;
+    font-weight: 400;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .form-status.show { opacity: 1; }
+
+  .form-status.success { color: #2e7d32; }
+  .form-status.error { color: var(--rose-deep); }
+
+  .form-note {
+    margin-top: 2rem;
+    font-size: 0.75rem;
+    color: var(--ink-faint);
+    font-weight: 300;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    line-height: 1.5;
+  }
+
+  /* Toggle button */
+  .submit-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.8rem 2rem;
+    background: transparent;
+    color: var(--rose);
+    border: 1.5px solid var(--rose-light);
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 0.5rem;
+  }
+
+  .submit-toggle:hover {
+    background: var(--rose-pale);
+    border-color: var(--rose);
+  }
+
+  .submit-toggle svg {
+    width: 18px; height: 18px;
+    fill: currentColor;
+    transition: transform 0.3s;
+  }
+
+  .submit-toggle.open svg {
+    transform: rotate(45deg);
+  }
+
+  /* Collapsible form wrapper */
+  .submit-form-wrap {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease, opacity 0.4s ease;
+    opacity: 0;
+  }
+
+  .submit-form-wrap.open {
+    max-height: 1200px;
+    opacity: 1;
+  }
+
+  /* Honeypot — invisible to humans */
+  .ht-field {
+    position: absolute;
+    left: -9999px;
+    top: -9999px;
+    opacity: 0;
+    height: 0;
+    width: 0;
+    pointer-events: none;
+    tab-index: -1;
+  }
+
+  /* ═══════════════════════════════════
+     BOOKS / FROM THE RESEARCHERS
+     ═══════════════════════════════════ */
+  .books-section {
+    text-align: center;
+    padding: 4rem 2rem 3rem;
+    background: var(--bg);
+  }
+
+  .books-thread {
+    width: 100%; max-width: 600px;
+    height: 1px;
+    margin: 0 auto 3rem;
+    background: linear-gradient(90deg, transparent, var(--rose), transparent);
+    opacity: 0.3;
+  }
+
+  .books-section h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(1.4rem, 3vw, 1.8rem);
+    color: var(--ink);
+    margin-bottom: 0.6rem;
+    line-height: 1.2;
+  }
+
+  .books-section > p {
+    font-size: 0.9rem;
+    color: var(--ink-light);
+    max-width: 480px;
+    margin: 0 auto 2.5rem;
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  .books-grid {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+    max-width: 680px;
+    margin: 0 auto 2rem;
+  }
+
+  .book-card {
+    width: 260px;
+    text-align: center;
+    text-decoration: none;
+    color: var(--ink);
+    transition: transform 0.3s;
+  }
+
+  .book-card:hover {
+    transform: translateY(-4px);
+  }
+
+  .book-card img {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    transition: box-shadow 0.3s;
+  }
+
+  .book-card:hover img {
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  }
+
+  .book-card .book-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 0.95rem;
+    margin-top: 0.8rem;
+    line-height: 1.3;
+  }
+
+  .book-card .book-subtitle {
+    font-size: 0.75rem;
+    color: var(--ink-faint);
+    font-weight: 300;
+    margin-top: 0.3rem;
+  }
+
+  .books-more {
+    display: inline-block;
+    margin-top: 1rem;
+    font-size: 0.8rem;
+    color: var(--rose);
+    text-decoration: none;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    transition: color 0.2s;
+  }
+
+  .books-more:hover {
+    color: var(--rose-deep);
+  }
+
+  @media (max-width: 768px) {
+    .form-row { flex-direction: column; gap: 0; }
+    .books-grid { gap: 1.5rem; }
+    .book-card { width: 220px; }
+  }
+
+  /* ═══════════════════════════════════
      MODAL
      ═══════════════════════════════════ */
   .modal-overlay {
@@ -771,6 +1097,97 @@
   <div class="ending-thread"></div>
   <h2>There is no right way to be feminine.</h2>
   <p>That's the point. The rules aren't meant to be followed — they're meant to be failed. Every double bind is a mechanism of control disguised as a standard.</p>
+</section>
+
+<!-- BOOKS -->
+<section class="books-section">
+  <div class="books-thread"></div>
+  <h2>From the Researchers</h2>
+  <p>Learn more about femmephobia and how to challenge it — in your own life, your classroom, or your family.</p>
+
+  <div class="books-grid">
+    <a class="book-card" href="https://www.lulu.com/shop/karen-l-blair-and-jocelyne-scott-and-toni-serafini-and-rhea-ashley-hoskin/the-femmephobia-101-workbook/paperback/product-vv949j.html?page=1&pageSize=4&q=femmephobia" target="_blank" rel="noopener">
+      <img src="workbook.jpg" alt="The Femmephobia 101 Workbook cover" loading="lazy">
+      <div class="book-title">The Femmephobia 101 Workbook</div>
+      <div class="book-subtitle">Hoskin, Serafini, Scott &amp; Blair (2023)</div>
+    </a>
+    <a class="book-card" href="https://beyondsugarandspice.org/interactive-parenting-workbook" target="_blank" rel="noopener">
+      <img src="beyond-sugar-and-spice.jpg" alt="Beyond Sugar and Spice: A Parenting Workbook for Valuing Femininity in All Children cover" loading="lazy">
+      <div class="book-title">Beyond Sugar &amp; Spice</div>
+      <div class="book-subtitle">Hoskin, Serafini, Scott, Quinlan &amp; Blair</div>
+    </a>
+  </div>
+
+  <a class="books-more" href="https://www.ashleyhoskin.ca/resources" target="_blank" rel="noopener">View all resources &rarr;</a>
+</section>
+
+<!-- SUBMIT FORM -->
+<section class="submit-section" id="submitSection">
+  <div class="submit-thread"></div>
+  <h2>Know a double bind we missed?</h2>
+  <p>Femininity is policed in countless ways. If you've experienced or observed a double bind not listed here, we'd love to hear about it. Approved submissions will be added to the visualization.</p>
+
+  <button class="submit-toggle" id="submitToggle">
+    <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+    Submit a double bind
+  </button>
+
+  <div class="submit-form-wrap" id="submitFormWrap">
+    <form class="submit-form" id="submitForm">
+      <div class="form-group">
+        <label for="subTitle">Title</label>
+        <div class="form-hint">A short, evocative name for this double bind</div>
+        <input type="text" id="subTitle" name="title" placeholder="e.g., The Ambition Penalty" required>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="subLeft">One extreme</label>
+          <div class="form-hint">The "too little" side</div>
+          <input type="text" id="subLeft" name="left" placeholder="e.g., Be passive" required>
+        </div>
+        <div class="form-group">
+          <label for="subRight">Other extreme</label>
+          <div class="form-hint">The "too much" side</div>
+          <input type="text" id="subRight" name="right" placeholder="e.g., Be aggressive" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="subDesc">Description</label>
+        <div class="form-hint">Explain the double bind — how do both sides punish femininity?</div>
+        <textarea id="subDesc" name="desc" placeholder="Describe how this double bind works. What happens when someone is 'too little'? What happens when they're 'too much'? Why is there no safe middle ground?" required></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="subName">Your name <span style="text-transform:none;letter-spacing:normal;font-weight:300;color:var(--ink-faint)">(optional)</span></label>
+          <input type="text" id="subName" name="submitter_name" placeholder="Name or Anonymous">
+        </div>
+        <div class="form-group">
+          <label for="subEmail">Email <span style="text-transform:none;letter-spacing:normal;font-weight:300;color:var(--ink-faint)">(optional, not published)</span></label>
+          <input type="email" id="subEmail" name="submitter_email" placeholder="For follow-up only">
+        </div>
+      </div>
+
+      <!-- Honeypot field — hidden from humans, bots will fill it -->
+      <div class="ht-field" aria-hidden="true">
+        <label for="subWebsite">Website</label>
+        <input type="text" id="subWebsite" name="website" tabindex="-1" autocomplete="off">
+      </div>
+
+      <button type="submit" class="submit-btn" id="submitBtn">
+        <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        Submit for review
+      </button>
+
+      <div class="form-status" id="formStatus"></div>
+
+      <div class="form-note">
+        All submissions are reviewed before being added. By submitting, you agree that your contribution may be included in this research visualization with attribution (if name provided).
+      </div>
+    </form>
+  </div>
 </section>
 
 <!-- FOOTER -->
@@ -1366,6 +1783,93 @@ document.getElementById('citationCopy').addEventListener('click', () => {
     btn.textContent = 'Copied!';
     setTimeout(() => { btn.textContent = 'Copy citation'; }, 2000);
   });
+});
+
+// ═══════════════════════════════════
+// SUBMISSION FORM — toggle, honeypot, timing
+// ═══════════════════════════════════
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxFonbzF-snXyJF8tKhZPVYfktlZFMvsQha89blpvBBWdF8e5-nVmYeF5f_YWEBEfsA/exec';
+let formOpenedAt = 0; // Track when form was revealed (anti-bot timing)
+
+// Toggle form open/closed
+document.getElementById('submitToggle').addEventListener('click', function() {
+  const wrap = document.getElementById('submitFormWrap');
+  const isOpen = wrap.classList.toggle('open');
+  this.classList.toggle('open', isOpen);
+  if (isOpen) {
+    formOpenedAt = Date.now();
+    // Scroll form into view after animation
+    setTimeout(() => wrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+  }
+});
+
+document.getElementById('submitForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  const btn = document.getElementById('submitBtn');
+  const status = document.getElementById('formStatus');
+
+  // Honeypot check — if the hidden field has a value, it's a bot
+  if (document.getElementById('subWebsite').value) {
+    // Fake success so bot thinks it worked
+    status.textContent = 'Thank you! Your submission has been received and will be reviewed by our research team.';
+    status.className = 'form-status show success';
+    this.reset();
+    return;
+  }
+
+  // Timing check — reject if form was submitted in under 3 seconds
+  if (formOpenedAt && (Date.now() - formOpenedAt) < 3000) {
+    status.textContent = 'Please take a moment to fill out the form carefully.';
+    status.className = 'form-status show error';
+    return;
+  }
+
+  if (!APPS_SCRIPT_URL) {
+    status.textContent = 'Submissions are not yet configured. Please check back later.';
+    status.className = 'form-status show error';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<svg viewBox="0 0 24 24" style="animation:spin 1s linear infinite"><path d="M12 4V2A10 10 0 0 0 2 12h2a8 8 0 0 1 8-8z"/></svg> Submitting...';
+  status.className = 'form-status';
+
+  const payload = {
+    title: document.getElementById('subTitle').value.trim(),
+    left: document.getElementById('subLeft').value.trim(),
+    right: document.getElementById('subRight').value.trim(),
+    desc: document.getElementById('subDesc').value.trim(),
+    submitter_name: document.getElementById('subName').value.trim() || 'Anonymous',
+    submitter_email: document.getElementById('subEmail').value.trim() || ''
+  };
+
+  try {
+    const resp = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    // no-cors means we can't read the response, but if it didn't throw, it likely worked
+    status.textContent = 'Thank you! Your submission has been received and will be reviewed by our research team.';
+    status.className = 'form-status show success';
+    this.reset();
+
+    // Collapse form after successful submission
+    setTimeout(() => {
+      document.getElementById('submitFormWrap').classList.remove('open');
+      document.getElementById('submitToggle').classList.remove('open');
+    }, 3000);
+  } catch (err) {
+    console.error('Submit error:', err);
+    status.textContent = 'Something went wrong. Please try again or email your submission directly.';
+    status.className = 'form-status show error';
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg> Submit for review';
 });
 
 // ═══════════════════════════════════
