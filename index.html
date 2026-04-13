@@ -902,9 +902,13 @@
   .share-btn svg { width: 14px; height: 14px; fill: currentColor; }
 
   .copy-toast {
-    font-size: 0.65rem; color: var(--rose);
+    font-size: 0.75rem; color: var(--rose);
     opacity: 0; transition: opacity 0.3s;
-    margin-left: 0.2rem; font-weight: 500;
+    margin-left: 0.4rem; font-weight: 500;
+    white-space: nowrap;
+  }
+  @media (max-width: 768px) {
+    .copy-toast { white-space: normal; display: block; margin-left: 0; margin-top: 0.4rem; }
   }
 
   .copy-toast.show { opacity: 1; }
@@ -1572,7 +1576,10 @@ function openModal(i) {
   const url = encodeURIComponent(shareUrl(i));
   const text = encodeURIComponent(shareTextShort(i));
   document.getElementById('shareX').href = `https://twitter.com/intent/tweet?text=${text}&url=${url}`;
-  document.getElementById('shareFb').href = `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`;
+  // Facebook and LinkedIn no longer accept pre-filled post text via URL params.
+  // We copy the text to the clipboard and open their share dialogs —
+  // the user can paste into their post.
+  document.getElementById('shareFb').href = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
   document.getElementById('shareLi').href = `https://www.linkedin.com/sharing/share-offsite/?url=${url}`;
 
   // Show native share button if supported, but ALWAYS show desktop buttons too
@@ -1606,6 +1613,27 @@ document.getElementById('shareCopy').addEventListener('click', e => {
     t.classList.add('show');
     setTimeout(() => t.classList.remove('show'), 2000);
   });
+});
+
+// Facebook and LinkedIn strip pre-filled post text — copy the text to the
+// clipboard so the user can paste it into their post.
+function copyAndToast(msg) {
+  if (currentIdx < 0) return;
+  navigator.clipboard.writeText(shareText(currentIdx)).then(() => {
+    const t = document.getElementById('copyToast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => {
+      t.classList.remove('show');
+      setTimeout(() => { t.textContent = 'Copied!'; }, 300);
+    }, 2800);
+  });
+}
+document.getElementById('shareFb').addEventListener('click', () => {
+  copyAndToast('Text copied — paste into your Facebook post');
+});
+document.getElementById('shareLi').addEventListener('click', () => {
+  copyAndToast('Text copied — paste into your LinkedIn post');
 });
 
 // Native share (mobile) — shares image + text + link
