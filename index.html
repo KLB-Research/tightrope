@@ -1544,20 +1544,28 @@ function openModal(i) {
   document.getElementById('mRight').textContent = d.right;
   // Render description — split on "---" so the first segment is the lead,
   // and any remaining segments are rendered as styled pull quotes.
+  // Supports simple markdown in cells: **bold**, *italic*
   const descEl = document.getElementById('mDesc');
   descEl.innerHTML = '';
   const parts = (d.desc || '').split(/\s*---\s*/).map(s => s.trim()).filter(Boolean);
+  // Escape HTML first, then apply markdown transforms — prevents injection
+  // while allowing *italic* and **bold** typed into the Google Sheet.
+  const formatInline = (raw) => {
+    const esc = raw
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+    return esc
+      .replace(/\*\*([^\*]+)\*\*/g, '<strong>$1</strong>')
+      .replace(/(^|[^\*])\*([^\*\n]+)\*/g, '$1<em>$2</em>');
+  };
   parts.forEach((part, idx) => {
     const el = document.createElement('p');
     // Strip surrounding matching quotes for cleaner display in the quote blocks
     const cleaned = part.replace(/^["“](.*)["”]$/s, '$1').trim();
-    if (idx === 0) {
-      el.className = 'desc-lead';
-      el.textContent = cleaned;
-    } else {
-      el.className = 'desc-quote';
-      el.textContent = cleaned;
-    }
+    el.className = idx === 0 ? 'desc-lead' : 'desc-quote';
+    el.innerHTML = formatInline(cleaned);
     descEl.appendChild(el);
   });
 
