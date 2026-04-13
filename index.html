@@ -837,6 +837,32 @@
     letter-spacing: 0.1em; color: var(--ink-faint);
   }
 
+  #mDesc .desc-lead {
+    color: var(--ink-light);
+    line-height: 1.85; font-size: 0.95rem;
+    margin-bottom: 1.25rem;
+  }
+  #mDesc .desc-quote {
+    position: relative;
+    color: var(--ink-light);
+    line-height: 1.75; font-size: 0.92rem;
+    padding: 0.6rem 0 0.6rem 1.75rem;
+    margin-bottom: 0.5rem;
+    border-left: 2px solid var(--rose);
+    font-style: italic;
+  }
+  #mDesc .desc-quote::before {
+    content: "“";
+    position: absolute;
+    left: 0.4rem; top: 0.3rem;
+    font-family: Georgia, serif;
+    font-size: 1.8rem;
+    color: var(--rose);
+    line-height: 1;
+    font-style: normal;
+    opacity: 0.5;
+  }
+  #mDesc .desc-quote:last-child { margin-bottom: 0; }
   .modal p {
     color: var(--ink-light);
     line-height: 1.85; font-size: 0.95rem;
@@ -1246,7 +1272,7 @@
       <div class="modal-pole-vs">VS</div>
       <div class="modal-pole modal-pole-right" id="mRight"></div>
     </div>
-    <p id="mDesc"></p>
+    <div id="mDesc"></div>
     <div class="share-row">
       <span class="share-label">Share</span>
       <!-- Native share (mobile) — hidden on desktop -->
@@ -1516,7 +1542,24 @@ function openModal(i) {
   document.getElementById('mTitle').textContent = d.title;
   document.getElementById('mLeft').textContent = d.left;
   document.getElementById('mRight').textContent = d.right;
-  document.getElementById('mDesc').textContent = d.desc;
+  // Render description — split on "---" so the first segment is the lead,
+  // and any remaining segments are rendered as styled pull quotes.
+  const descEl = document.getElementById('mDesc');
+  descEl.innerHTML = '';
+  const parts = (d.desc || '').split(/\s*---\s*/).map(s => s.trim()).filter(Boolean);
+  parts.forEach((part, idx) => {
+    const el = document.createElement('p');
+    // Strip surrounding matching quotes for cleaner display in the quote blocks
+    const cleaned = part.replace(/^["“](.*)["”]$/s, '$1').trim();
+    if (idx === 0) {
+      el.className = 'desc-lead';
+      el.textContent = cleaned;
+    } else {
+      el.className = 'desc-quote';
+      el.textContent = cleaned;
+    }
+    descEl.appendChild(el);
+  });
 
   const url = encodeURIComponent(shareUrl(i));
   const text = encodeURIComponent(shareTextShort(i));
