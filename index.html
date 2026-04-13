@@ -1754,31 +1754,34 @@ function generateShareImage(index) {
   // Description (word-wrapped)
   // Use only the lead paragraph (before the first "---" separator) and
   // strip markdown asterisks — share images are for the headline only.
-  ctx.font = '300 17px sans-serif';
-  ctx.fillStyle = '#4a4a4a';
+  // Bumped up in size and switched to serif to fill the canvas and match
+  // the editorial feel of the title.
+  ctx.font = '400 28px Georgia, serif';
+  ctx.fillStyle = '#2a2a2a';
   const descLead = (d.desc || '').split(/\s*---\s*/)[0]
     .replace(/\*\*([^\*]+)\*\*/g, '$1')
     .replace(/\*([^\*\n]+)\*/g, '$1')
     .trim();
   const descWords = descLead.split(' ');
   let descLine = '';
-  let descY = barTop + 50;
+  let descY = barTop + 70;
   const maxDescWidth = W - 160;
-  const maxDescLines = 5;
+  const lineHeight = 40;
+  const maxDescLines = 6;
   let descLineCount = 0;
   for (const word of descWords) {
     const test = descLine + (descLine ? ' ' : '') + word;
     if (ctx.measureText(test).width > maxDescWidth && descLine) {
       descLineCount++;
       if (descLineCount > maxDescLines) {
-        descLine = descLine.replace(/\s+\S*$/, '') + '...';
+        descLine = descLine.replace(/\s+\S*$/, '') + '…';
         ctx.fillText(descLine, 80, descY);
         descLine = '';
         break;
       }
       ctx.fillText(descLine, 80, descY);
       descLine = word;
-      descY += 26;
+      descY += lineHeight;
     } else {
       descLine = test;
     }
