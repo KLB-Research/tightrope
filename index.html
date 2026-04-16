@@ -220,7 +220,8 @@
     box-shadow: 0 4px 24px rgba(196,85,110,0.08);
   }
 
-  .spectrum-card:hover .spectrum-safe {
+  .spectrum-card:hover .spectrum-safe,
+  .spectrum-card.in-view .spectrum-safe {
     animation: shrinkSafe 1.5s ease-in-out forwards;
   }
 
@@ -2035,6 +2036,30 @@ document.getElementById('submitForm').addEventListener('submit', async function(
   btn.disabled = false;
   btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg> Submit for review';
 });
+
+// ═══════════════════════════════════
+// MOBILE: AUTO-ANIMATE BARS ON SCROLL
+// ═══════════════════════════════════
+if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+  const barObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in-view');
+        barObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.6 });
+
+  // Observe cards after they're rendered
+  const origLoadData = loadData;
+  const waitForCards = setInterval(() => {
+    const cards = document.querySelectorAll('.spectrum-card');
+    if (cards.length > 0) {
+      clearInterval(waitForCards);
+      cards.forEach(card => barObserver.observe(card));
+    }
+  }, 500);
+}
 
 // ═══════════════════════════════════
 // INIT
